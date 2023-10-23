@@ -1,0 +1,58 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Competition {
+  id           Int       @id @default(autoincrement())
+  name         String
+  participants String[]
+  scoring      String
+  createdBy    User      @relation(fields: [createdById], references: [id])
+  createdById  Int
+  matches      Match[]
+  rankings     Ranking[]
+}
+
+model User {
+  id           Int           @id @default(autoincrement())
+  email        String        @unique
+  competitions Competition[]
+}
+
+model Result {
+  id         Int   @id @default(autoincrement())
+  scoreTeam1 Int
+  scoreTeam2 Int
+  match      Match @relation(fields: [matchId], references: [id])
+  matchId    Int
+}
+
+model Match {
+  id            Int          @id @default(autoincrement())
+  team1         String
+  team2         String
+  score1        Int?
+  score2        Int?
+  competition   Competition? @relation(fields: [competitionId], references: [id])
+  competitionId Int?
+  results       Result[]
+}
+
+model Schedule {
+  id            Int  @id @default(autoincrement())
+  competitionId Int
+  scheduleData  Json
+}
+
+model Ranking {
+  id            Int         @id @default(autoincrement())
+  competition   Competition @relation(fields: [competitionId], references: [id])
+  competitionId Int
+  team          String
+  ranking       Int
+}
